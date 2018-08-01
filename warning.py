@@ -2,14 +2,17 @@ from tkinter import *
 from tkinter import messagebox
 
 root = Tk()
-countingLabel = Label(root, text="Time to Count:0", background='blue', foreground='white', font='Times 28',
-                      relief='groove', borderwidth=3)
-countingLabel.grid(row=0, column=1)
-theCountValue = 0
 global maxValue
-maxValue = 100
+maxValue = 100  # set a default
+theCountValue = 0
+countingLabel = Label(root, text="Time to Count:0", background='blue', foreground='white', font='Times 28',
+                      relief='groove', borderwidth=3, width=12)
+countingLabel.grid(row=0, column=1)
+maxValueCount = Label(root, text="Kit Size:" + str(maxValue), background='blue', foreground='white', font='Times 28',
+                      relief='groove', borderwidth=3, width=12)
+maxValueCount.grid(row=1, column=1)
 root.title("NAHA Counting Machine")
-root.geometry('350x200')
+root.geometry('370x220')
 
 
 def grabMax():
@@ -20,6 +23,7 @@ def grabMax():
             finalValue = int(value)
             global maxValue
             maxValue = finalValue
+            maxValueCount.configure(text="Kit Size:" + str(maxValue))
             return int(value)
         except ValueError:
             return None
@@ -27,6 +31,7 @@ def grabMax():
 
 def dispmax():
     print(maxValue)
+    maxValueCount.configure(text="Kit Size:" + str(maxValue))
 
 
 def begin_count():
@@ -51,7 +56,7 @@ def reset_count():
 
 
 txtEntry = Entry(master=root, width=15)
-txtEntry.grid(column=9, row=9)
+txtEntry.grid(column=1, row=9)
 
 
 incrementButton = Button(root, text="Increment", width=10, command=begin_count)
