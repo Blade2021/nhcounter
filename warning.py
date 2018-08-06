@@ -4,7 +4,7 @@ from tkinter import messagebox
 import time
 import configparser
 # GPIO.setmode(GPIO.BOARD)
-# GPIO.setup(7, GPIO.OUT)
+# GPIO.setup(7, GPIO.IN)
 
 root = Tk()
 maxValue = 100  # set a default
@@ -12,7 +12,11 @@ theCountValue = 0
 max = 31
 start = time.time()
 root.title("NAHA Counting Machine")
-root.geometry('370x220')
+# root.geometry('370x220')
+root.overrideredirect(True)
+root.overrideredirect(False)
+root.attributes('-fullscreen', True)
+
 
 # Import configurations
 config = configparser.ConfigParser()
@@ -59,7 +63,8 @@ def begin_count():
 
 
 def error():
-    messagebox.showerror('Machine Error', 'Frigging roger...')
+    # messagebox.showerror('Machine Error', 'Frigging roger...')
+    root.destroy()
 
 
 def lower_count():

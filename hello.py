@@ -1,47 +1,31 @@
-from tkinter import *
-from tkinter import messagebox
-root = Tk()
-counter = 20
+import sys
+if sys.version_info[0] == 2:  # Just checking your Python version to import Tkinter properly.
+    from Tkinter import *
+else:
+    from tkinter import *
 
 
-def makeSomething(value):
-    global counter
-    counter = value
+class Fullscreen_Window:
 
+    def __init__(self):
+        self.tk = Tk()
+        self.tk.attributes('-zoomed', True)  # This just maximizes it so we can see the window. It's nothing to do with fullscreen.
+        self.frame = Frame(self.tk)
+        self.frame.pack()
+        self.state = False
+        self.tk.bind("<F11>", self.toggle_fullscreen)
+        self.tk.bind("<Escape>", self.end_fullscreen)
 
-def printVariable():
-    print(counter)
+    def toggle_fullscreen(self, event=None):
+        self.state = not self.state  # Just toggling the boolean
+        self.tk.attributes("-fullscreen", self.state)
+        return "break"
 
+    def end_fullscreen(self, event=None):
+        self.state = False
+        self.tk.attributes("-fullscreen", False)
+        return "break"
 
-root.title("NAHA")
-root.geometry('350x200')
-txt = Entry(root, width=10)
-txt.grid(column=1, row=0)
-
-
-def error():
-    messagebox.showerror('Machine Error', 'Good job you just broke something.')
-
-
-def up():
-    makeSomething(counter+1)
-    printVariable()
-    lbl.configure(text=str(counter))
-
-
-def down():
-    makeSomething(counter-1)
-    printVariable()
-    lbl.configure(text=str(counter))
-
-
-lbl = Label(root, text="This is a test")
-lbl.grid(column=0, row=0)
-btn = Button(root, text="Click Me", command=error)
-btn.grid(column=2, row=0)
-upbtn = Button(root, text="Up", command=up())
-upbtn.grid(column=5, row=5)
-downbtn = Button(root, text="Down", command=down())
-downbtn.grid(column=6, row=5)
-
-root.mainloop()
+if __name__ == '__main__':
+    w = Fullscreen_Window()
+    w.tk.mainloop()
