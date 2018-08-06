@@ -1,11 +1,20 @@
-import in_place
+import fileinput
+import sys
 
-value = "Changes"
-with in_place.InPlace('testfile.txt') as file:
-    line1 = file.readLine()
-    line2 = file.readLine()
+x = 0
+y = 0
+value = "Pear"
+
+with fileinput.input(files="testfile.txt", backup="test.bak",inplace=1) as file:
     for line in file:
-        if string1 == "Check":
-            line = line.replace(value, 'testZ')
-            file.write(line)
-        string1 = line
+        print(line, end='')
+        if value in line:
+            y = file.lineno()+1
+            print(y)
+        if file.lineno() == y:
+            print("Line:"+line, end='')
+            line = line.replace("Apple", "Orange")
+            sys.stdout.write(line)
+            print("Triggered", end='')
+
+fileinput.close()
