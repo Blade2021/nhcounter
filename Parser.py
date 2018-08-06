@@ -5,16 +5,12 @@ x = 0
 y = 0
 value = "Pear"
 
-with fileinput.input(files="testfile.txt", backup="test.bak",inplace=1) as file:
+with fileinput.input(files="testfile.txt", backup="test.bak", inplace=1) as file:
     for line in file:
-        print(line, end='')
         if value in line:
-            y = file.lineno()+1
-            print(y)
-        if file.lineno() == y:
-            print("Line:"+line, end='')
+            y = file.filelineno()+1
+        if (file.filelineno() == y) and ("Apple" in line):
             line = line.replace("Apple", "Orange")
-            sys.stdout.write(line)
-            print("Triggered", end='')
+        sys.stdout.write(line)
 
 fileinput.close()
