@@ -17,6 +17,8 @@ fastrate = str(config['DEFAULT']['FastRate'])
 
 with fileinput.input(files="testfile.txt", backup="test.bak", inplace=1) as file:
     for line in file:
+        line = line.replace("G23", "G03")
+        line = line.replace("G22", "G02")
         pcodeCheck = line.find('P')
         if pcodeCheck >= 1:
             line = line[0:pcodeCheck]
