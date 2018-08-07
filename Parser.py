@@ -5,90 +5,130 @@ import configparser
 import tkinter as tk
 from tkinter import filedialog
 
+def grabMax():
+    valueArray = [0, 0, 0, 0]
+    ind = 0
+    while ind < 4:
+    try:
+        valueArray[0] = int(feedRate01.get())
+        valueArray[1] = int(feedRate02.get())
+        valueArray[2] = int(feedRate03.get())
+        valueArray[3] = int(feedRate04.get())
+        z = 0
+        while z < len(valueArray):
+            try:
+                print(valueArray[z])
+            except ValueError:
+                print("Something went wrong")
+            z += 1
+    except ValueError:
+        print("something went wrong")
+
+
 root = tk.Tk()
-root.withdraw()
+feedRate01 = tk.Entry(master=root, width=10)
+feedRate01.grid(column=1, row=1)
 
-file_path = filedialog.askopenfilename()
+feedRate02 = tk.Entry(master=root, width=10)
+feedRate02.grid(column=1, row=2)
 
-config = configparser.ConfigParser()
-config.read('data.ini')
+feedRate03 = tk.Entry(master=root, width=10)
+feedRate03.grid(column=1, row=3)
 
-x = 0
-y = 0
-rate = 0
-value = "Z-"
-index = -1
+feedRate04 = tk.Entry(master=root, width=10)
+feedRate04.grid(column=1, row=4)
 
-slowRateArray = [2, 2, 2, 2]
-fastRateArray = [7, 7, 7, 7]
-slowRateArray[0] = str('F' + config['TOOL_1']['SlowRate'])
-fastRateArray[0] = str('F' + config['TOOL_1']['FastRate'])
-slowRateArray[1] = str('F' + config['TOOL_2']['SlowRate'])
-fastRateArray[1] = str('F' + config['TOOL_2']['FastRate'])
-slowRateArray[2] = str('F' + config['TOOL_3']['SlowRate'])
-fastRateArray[2] = str('F' + config['TOOL_3']['FastRate'])
-slowRateArray[3] = str('F' + config['TOOL_4']['SlowRate'])
-fastRateArray[3] = str('F' + config['TOOL_4']['FastRate'])
 
-with fileinput.input(files=file_path, backup=".bak", inplace=1) as file:
-    for line in file:
-        if(file.filelineno() == 1):
-            sys.stdout.write(line)
-            continue
-        parentCheck = line.find("(")
-        if parentCheck != -1:
-            if parentCheck == 0:
+grabMaxButton = tk.Button(root, text="Enter", width=10, command=grabMax)
+grabMaxButton.grid(row=3, column=0)
+
+tk.mainloop()
+# root.withdraw()
+
+
+
+def Execute():
+    file_path = filedialog.askopenfilename()
+
+    config = configparser.ConfigParser()
+    config.read('data.ini')
+
+    x = 0
+    y = 0
+    rate = 0
+    value = "Z-"
+    index = -1
+
+    slowRateArray = [2, 2, 2, 2]
+    fastRateArray = [7, 7, 7, 7]
+    slowRateArray[0] = str('F' + config['TOOL_1']['SlowRate'])
+    fastRateArray[0] = str('F' + config['TOOL_1']['FastRate'])
+    slowRateArray[1] = str('F' + config['TOOL_2']['SlowRate'])
+    fastRateArray[1] = str('F' + config['TOOL_2']['FastRate'])
+    slowRateArray[2] = str('F' + config['TOOL_3']['SlowRate'])
+    fastRateArray[2] = str('F' + config['TOOL_3']['FastRate'])
+    slowRateArray[3] = str('F' + config['TOOL_4']['SlowRate'])
+    fastRateArray[3] = str('F' + config['TOOL_4']['FastRate'])
+
+    with fileinput.input(files=file_path, backup=".bak", inplace=1) as file:
+        for line in file:
+            if(file.filelineno() == 1):
+                sys.stdout.write(line)
                 continue
-            else:
-                line = line[0:parentCheck]
-                line = line + "\n"
-        # Remove Feed rates if applicable
-        feedCheck = line.find('F')
-        if feedCheck >= 1:
-            line = line[0:feedCheck]
-            line += "\n"
-
-        line = line.replace("G23", "G03")
-        line = line.replace("G22", "G02")
-        # line = line.replace("F 0684", "F2.")
-        # Search document for P codes and remove them
-        pcodeCheck = line.find('P')
-        if pcodeCheck >= 1:
-            line = line[0:pcodeCheck]
-            line += "\n"
-
-        toolCheck = line.find('T')
-        if toolCheck >= 1:
-            index += 1
-            if index >= len(slowRateArray):
-                index = 0
-
-        # Search document line by line for Z negatives
-        if value in line:
-            if "G00" in line:
-                continue
-
-            y = file.filelineno() + 1
+            parentCheck = line.find("(")
+            if parentCheck != -1:
+                if parentCheck == 0:
+                    continue
+                else:
+                    line = line[0:parentCheck]
+                    line = line + "\n"
+            # Remove Feed rates if applicable
             feedCheck = line.find('F')
             if feedCheck >= 1:
                 line = line[0:feedCheck]
-            line = line.rstrip('\n')
-            if rate >= 2:
-                line += slowRateArray[index] + "\n"
-                rate = 1
-            else:
-                if rate == 0:
-                    rate = 1
-                    line += slowRateArray[index]
                 line += "\n"
-        if (file.filelineno() == y) and ("G01" in line):
-            feedCheck = line.find('F')
-            if feedCheck >= 1:
-                line = line[0:feedCheck]
-            if rate == 1:
-                line = line.rstrip('\n')
-                line += fastRateArray[index] + "\n"
-                rate = 2
-        sys.stdout.write(line)
 
-fileinput.close()
+            line = line.replace("G23", "G03")
+            line = line.replace("G22", "G02")
+            # line = line.replace("F 0684", "F2.")
+            # Search document for P codes and remove them
+            pcodeCheck = line.find('P')
+            if pcodeCheck >= 1:
+                line = line[0:pcodeCheck]
+                line += "\n"
+
+            toolCheck = line.find('T')
+            if toolCheck >= 1:
+                index += 1
+                if index >= len(slowRateArray):
+                    index = 0
+
+            # Search document line by line for Z negatives
+            if value in line:
+                if "G00" in line:
+                    continue
+
+                y = file.filelineno() + 1
+                feedCheck = line.find('F')
+                if feedCheck >= 1:
+                    line = line[0:feedCheck]
+                line = line.rstrip('\n')
+                if rate >= 2:
+                    line += slowRateArray[index] + "\n"
+                    rate = 1
+                else:
+                    if rate == 0:
+                        rate = 1
+                        line += slowRateArray[index]
+                    line += "\n"
+            if (file.filelineno() == y) and ("G01" in line):
+                feedCheck = line.find('F')
+                if feedCheck >= 1:
+                    line = line[0:feedCheck]
+                if rate == 1:
+                    line = line.rstrip('\n')
+                    line += fastRateArray[index] + "\n"
+                    rate = 2
+            sys.stdout.write(line)
+
+    fileinput.close()
