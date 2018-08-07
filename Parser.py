@@ -2,6 +2,14 @@ import fileinput
 import sys
 import configparser
 
+import tkinter as tk
+from tkinter import filedialog
+
+root = tk.Tk()
+root.withdraw()
+
+file_path = filedialog.askopenfilename()
+
 config = configparser.ConfigParser()
 config.read('data.ini')
 
@@ -12,13 +20,13 @@ value = "Z-"
 slowrate = str('F' + config['DEFAULT']['SlowRate'])
 fastrate = str('F' + config['DEFAULT']['FastRate'])
 
-with fileinput.input(files="testfile.txt", backup="test.bak", inplace=1) as file:
+with fileinput.input(files=file_path, backup=".bak", inplace=1) as file:
     for line in file:
         if(file.filelineno() == 1):
             sys.stdout.write(line)
             continue
         parentCheck = line.find("(")
-        if parentCheck == 1:
+        if parentCheck != -1:
             continue
 
         line = line.replace("G23", "G03")
