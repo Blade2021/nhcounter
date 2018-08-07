@@ -17,7 +17,7 @@ x = 0
 y = 0
 rate = 0
 value = "Z-"
-index = 0
+index = -1
 
 slowRateArray = [2, 2, 2, 2]
 fastRateArray = [7, 7, 7, 7]
@@ -37,7 +37,11 @@ with fileinput.input(files=file_path, backup=".bak", inplace=1) as file:
             continue
         parentCheck = line.find("(")
         if parentCheck != -1:
-            continue
+            if parentCheck == 0:
+                continue
+            else:
+                line = line[0:parentCheck]
+                line = line + "\n"
 
         line = line.replace("G23", "G03")
         line = line.replace("G22", "G02")
