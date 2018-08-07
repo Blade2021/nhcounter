@@ -42,10 +42,15 @@ with fileinput.input(files=file_path, backup=".bak", inplace=1) as file:
             else:
                 line = line[0:parentCheck]
                 line = line + "\n"
+        # Remove Feed rates if applicable
+        feedCheck = line.find('F')
+        if feedCheck >= 1:
+            line = line[0:feedCheck]
+            line += "\n"
 
         line = line.replace("G23", "G03")
         line = line.replace("G22", "G02")
-        line = line.replace("F 0684", "F2.")
+        # line = line.replace("F 0684", "F2.")
         # Search document for P codes and remove them
         pcodeCheck = line.find('P')
         if pcodeCheck >= 1:
@@ -68,19 +73,22 @@ with fileinput.input(files=file_path, backup=".bak", inplace=1) as file:
             if feedCheck >= 1:
                 line = line[0:feedCheck]
             line = line.rstrip('\n')
-            if rate >= 1:
+            if rate >= 2:
                 line += slowRateArray[index] + "\n"
-                rate = 0
+                rate = 1
             else:
+                if rate == 0:
+                    rate = 1
+                    line += slowRateArray[index]
                 line += "\n"
         if (file.filelineno() == y) and ("G01" in line):
             feedCheck = line.find('F')
             if feedCheck >= 1:
                 line = line[0:feedCheck]
-            if rate == 0:
+            if rate == 1:
                 line = line.rstrip('\n')
                 line += fastRateArray[index] + "\n"
-                rate = 1
+                rate = 2
         sys.stdout.write(line)
 
 fileinput.close()
