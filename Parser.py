@@ -54,8 +54,6 @@ def execute(saveVar):
             config.write(dataFile)
             dataFile.close()
 
-    file_path = filedialog.askopenfilename()
-
     slowRateArray[0] = str('F' + slowRateArray[0])
     slowRateArray[1] = str('F' + slowRateArray[1])
     slowRateArray[2] = str('F' + slowRateArray[2])
@@ -65,68 +63,72 @@ def execute(saveVar):
     fastRateArray[2] = str('F' + fastRateArray[2])
     fastRateArray[3] = str('F' + fastRateArray[3])
 
-    with fileinput.input(files=file_path, backup=".bak", inplace=1) as file:
-        for line in file:
-            if(file.filelineno() == 1):
-                sys.stdout.write(line)
-                continue
-            parentCheck = line.find("(")
-            if parentCheck != -1:
-                if parentCheck == 0:
+    file_path = filedialog.askopenfilename()
+    try:
+        with fileinput.input(files=file_path, backup=".bak", inplace=1) as file:
+            for line in file:
+                if(file.filelineno() == 1):
+                    sys.stdout.write(line)
                     continue
-                else:
-                    line = line[0:parentCheck]
-                    line = line + "\n"
-            # Remove Feed rates if applicable
-            feedCheck = line.find('F')
-            if feedCheck >= 1:
-                line = line[0:feedCheck]
-                line += "\n"
-
-            line = line.replace("G23", "G03")
-            line = line.replace("G22", "G02")
-            # line = line.replace("F 0684", "F2.")
-            # Search document for P codes and remove them
-            pcodeCheck = line.find('P')
-            if pcodeCheck >= 1:
-                line = line[0:pcodeCheck]
-                line += "\n"
-
-            toolCheck = line.find('T')
-            if toolCheck >= 1:
-                index += 1
-                if index >= len(slowRateArray):
-                    index = 0
-
-            # Search document line by line for Z negatives
-            if value in line:
-                if "G00" in line:
-                    continue
-
-                y = file.filelineno() + 1
+                parentCheck = line.find("(")
+                if parentCheck != -1:
+                    if parentCheck == 0:
+                        continue
+                    else:
+                        line = line[0:parentCheck]
+                        line = line + "\n"
+                # Remove Feed rates if applicable
                 feedCheck = line.find('F')
                 if feedCheck >= 1:
                     line = line[0:feedCheck]
-                line = line.rstrip('\n')
-                if rate >= 2:
-                    line += slowRateArray[index] + "\n"
-                    rate = 1
-                else:
-                    if rate == 0:
-                        rate = 1
-                        line += slowRateArray[index]
                     line += "\n"
-            if (file.filelineno() == y) and ("G01" in line):
-                feedCheck = line.find('F')
-                if feedCheck >= 1:
-                    line = line[0:feedCheck]
-                if rate == 1:
-                    line = line.rstrip('\n')
-                    line += fastRateArray[index] + "\n"
-                    rate = 2
-            sys.stdout.write(line)
 
-    fileinput.close()
+                line = line.replace("G23", "G03")
+                line = line.replace("G22", "G02")
+                # line = line.replace("F 0684", "F2.")
+                # Search document for P codes and remove them
+                pcodeCheck = line.find('P')
+                if pcodeCheck >= 1:
+                    line = line[0:pcodeCheck]
+                    line += "\n"
+
+                toolCheck = line.find('T')
+                if toolCheck >= 1:
+                    index += 1
+                    if index >= len(slowRateArray):
+                        index = 0
+
+                # Search document line by line for Z negatives
+                if value in line:
+                    if "G00" in line:
+                        continue
+
+                    y = file.filelineno() + 1
+                    feedCheck = line.find('F')
+                    if feedCheck >= 1:
+                        line = line[0:feedCheck]
+                    line = line.rstrip('\n')
+                    if rate >= 2:
+                        line += slowRateArray[index] + "\n"
+                        rate = 1
+                    else:
+                        if rate == 0:
+                            rate = 1
+                            line += slowRateArray[index]
+                        line += "\n"
+                if (file.filelineno() == y) and ("G01" in line):
+                    feedCheck = line.find('F')
+                    if feedCheck >= 1:
+                        line = line[0:feedCheck]
+                    if rate == 1:
+                        line = line.rstrip('\n')
+                        line += fastRateArray[index] + "\n"
+                        rate = 2
+                sys.stdout.write(line)
+
+        fileinput.close()
+    except:
+        print("File not found")
     exit()
 
 def grabMax():
