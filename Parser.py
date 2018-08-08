@@ -8,6 +8,7 @@ from tkinter import messagebox
 
 slowRateArray = ['2', '2', '2', '2']
 fastRateArray = ['10', '10', '10', '10']
+saveVar = 0
 root = tk.Tk()
 root.title("GCode File Parser - By Matt W.")
 
@@ -29,30 +30,12 @@ fastRate4 = tk.Label(root, text="Fast Rate 4", font='Times 12', width=12)
 fastRate4.grid(row=4, column=3)
 
 
-def execute(saveVar):
+def execute():
     root.withdraw()
     x = 0
     y = 0
     rate = 0
     value = "Z-"
-    index = -1
-    if saveVar != 1:
-        saveVariable = tk.messagebox.askokcancel("Data File", "Would you like to save the data?")
-        if saveVariable is True:
-            # lets create that config file for next time...
-            config = configparser.ConfigParser()
-            config.read('data.ini')
-            dataFile = open("data.ini", 'r+')
-            config.set('TOOL_1', 'SlowRate', slowRateArray[0])
-            config.set('TOOL_2', 'SlowRate', slowRateArray[1])
-            config.set('TOOL_3', 'SlowRate', slowRateArray[2])
-            config.set('TOOL_4', 'SlowRate', slowRateArray[3])
-            config.set('TOOL_1', 'FastRate', fastRateArray[0])
-            config.set('TOOL_2', 'FastRate', fastRateArray[1])
-            config.set('TOOL_3', 'FastRate', fastRateArray[2])
-            config.set('TOOL_4', 'FastRate', fastRateArray[3])
-            config.write(dataFile)
-            dataFile.close()
 
     slowRateArray[0] = str('F' + slowRateArray[0])
     slowRateArray[1] = str('F' + slowRateArray[1])
@@ -127,15 +110,32 @@ def execute(saveVar):
                 sys.stdout.write(line)
 
         fileinput.close()
-    except:
+    except IOError:
         print("File not found")
     exit()
 
 def grabMax():
     indx = 0
+
+    # if saveVar != 1:
+    saveVariable = tk.messagebox.askyesno("Data File", "Would you like to save the data?")
+    if saveVariable == 'yes':
+        saveVar = 1
+    else:
+        saveVar = 0
+
+
+    config = configparser.ConfigParser()
+    config.read('data.ini')
+    dataFile = open('data.ini', 'r+')
     while indx < 4:
         try:
             slowRateArray[indx] = str(slowRateEntryArray[indx].get())
+            if saveVar == 1:
+                try:
+                    config.set('TOOL_' + (indx+1), 'SlowRate', slowRateArray[indx])
+                except:
+                    print("Something went wrong")
         except ValueError:
             indx += 1
             slowRateArray[indx] = '2'
@@ -145,12 +145,19 @@ def grabMax():
     while indx < 4:
         try:
             fastRateArray[indx] = str(fastRateEntryArray[indx].get())
+            if saveVar == 1:
+                try:
+                    config.set('TOOL_' + (indx+1), 'SlowRate', slowRateArray[indx])
+                except:
+                    print("Something went wrong")
         except ValueError:
             indx += 1
             fastRateArray[indx] = '8'
             continue
         indx += 1
-    execute(0)
+    config.write(dataFile)
+    dataFile.close()
+    execute()
 
 
 def exeDataFile():
@@ -168,7 +175,7 @@ def exeDataFile():
         fastRateArray[3] = config['TOOL_4']['FastRate']
     except ValueError:
         print("something went wrong")
-    execute(1)
+    execute()
 
 
 slowRateEntryArray = ["", "", "", ""]
