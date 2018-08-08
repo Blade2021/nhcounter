@@ -4,71 +4,64 @@ import configparser
 
 import tkinter as tk
 from tkinter import filedialog
+from tkinter import messagebox
 
-def grabMax():
-    valueArray = [0, 0, 0, 0]
-    ind = 0
-    while ind < 4:
-    try:
-        valueArray[0] = int(feedRate01.get())
-        valueArray[1] = int(feedRate02.get())
-        valueArray[2] = int(feedRate03.get())
-        valueArray[3] = int(feedRate04.get())
-        z = 0
-        while z < len(valueArray):
-            try:
-                print(valueArray[z])
-            except ValueError:
-                print("Something went wrong")
-            z += 1
-    except ValueError:
-        print("something went wrong")
-
-
+slowRateArray = ['2', '2', '2', '2']
+fastRateArray = ['10', '10', '10', '10']
 root = tk.Tk()
-feedRate01 = tk.Entry(master=root, width=10)
-feedRate01.grid(column=1, row=1)
+root.title("GCode File Parser - By Matt W.")
 
-feedRate02 = tk.Entry(master=root, width=10)
-feedRate02.grid(column=1, row=2)
+slowRate1 = tk.Label(root, text="Slow Rate 1", font='Times 12', borderwidth=3, width=12)
+slowRate1.grid(row=1, column=0)
+slowRate2 = tk.Label(root, text="Slow Rate 2", font='Times 12', borderwidth=3, width=12)
+slowRate2.grid(row=2, column=0)
+slowRate3 = tk.Label(root, text="Slow Rate 3", font='Times 12', borderwidth=3, width=12)
+slowRate3.grid(row=3, column=0)
+slowRate4 = tk.Label(root, text="Slow Rate 4", font='Times 12', width=12)
+slowRate4.grid(row=4, column=0)
+fastRate1 = tk.Label(root, text="Fast Rate 1", font='Times 12', width=12)
+fastRate1.grid(row=1, column=3)
+fastRate2 = tk.Label(root, text="Fast Rate 2", font='Times 12', width=12)
+fastRate2.grid(row=2, column=3)
+fastRate3 = tk.Label(root, text="Fast Rate 3", font='Times 12', width=12)
+fastRate3.grid(row=3, column=3)
+fastRate4 = tk.Label(root, text="Fast Rate 4", font='Times 12', width=12)
+fastRate4.grid(row=4, column=3)
 
-feedRate03 = tk.Entry(master=root, width=10)
-feedRate03.grid(column=1, row=3)
-
-feedRate04 = tk.Entry(master=root, width=10)
-feedRate04.grid(column=1, row=4)
-
-
-grabMaxButton = tk.Button(root, text="Enter", width=10, command=grabMax)
-grabMaxButton.grid(row=3, column=0)
-
-tk.mainloop()
-# root.withdraw()
-
-
-
-def Execute():
-    file_path = filedialog.askopenfilename()
-
-    config = configparser.ConfigParser()
-    config.read('data.ini')
-
+def execute():
+    root.withdraw()
     x = 0
     y = 0
     rate = 0
     value = "Z-"
     index = -1
+    saveVariable = tk.messagebox.askokcancel("Data File", "Would you like to save the data?")
+    if saveVariable is True:
+        # lets create that config file for next time...
+        config = configparser.ConfigParser()
+        config.read('data.ini')
+        dataFile = open("data.ini", 'r+')
+        config.set('TOOL_1', 'SlowRate', slowRateArray[0])
+        config.set('TOOL_2', 'SlowRate', slowRateArray[1])
+        config.set('TOOL_3', 'SlowRate', slowRateArray[2])
+        config.set('TOOL_4', 'SlowRate', slowRateArray[3])
+        config.set('TOOL_1', 'FastRate', fastRateArray[0])
+        config.set('TOOL_2', 'FastRate', fastRateArray[1])
+        config.set('TOOL_3', 'FastRate', fastRateArray[2])
+        config.set('TOOL_4', 'FastRate', fastRateArray[3])
+        config.write(dataFile)
+        dataFile.close()
 
-    slowRateArray = [2, 2, 2, 2]
-    fastRateArray = [7, 7, 7, 7]
-    slowRateArray[0] = str('F' + config['TOOL_1']['SlowRate'])
-    fastRateArray[0] = str('F' + config['TOOL_1']['FastRate'])
-    slowRateArray[1] = str('F' + config['TOOL_2']['SlowRate'])
-    fastRateArray[1] = str('F' + config['TOOL_2']['FastRate'])
-    slowRateArray[2] = str('F' + config['TOOL_3']['SlowRate'])
-    fastRateArray[2] = str('F' + config['TOOL_3']['FastRate'])
-    slowRateArray[3] = str('F' + config['TOOL_4']['SlowRate'])
-    fastRateArray[3] = str('F' + config['TOOL_4']['FastRate'])
+    file_path = filedialog.askopenfilename()
+
+    slowRateArray[0] = str('F' + slowRateArray[0])
+    slowRateArray[1] = str('F' + slowRateArray[1])
+    slowRateArray[2] = str('F' + slowRateArray[2])
+    slowRateArray[3] = str('F' + slowRateArray[3])
+    fastRateArray[0] = str('F' + fastRateArray[0])
+    fastRateArray[1] = str('F' + fastRateArray[1])
+    fastRateArray[2] = str('F' + fastRateArray[2])
+    fastRateArray[3] = str('F' + fastRateArray[3])
 
     with fileinput.input(files=file_path, backup=".bak", inplace=1) as file:
         for line in file:
@@ -132,3 +125,80 @@ def Execute():
             sys.stdout.write(line)
 
     fileinput.close()
+    exit()
+
+def grabMax():
+    indx = 0
+    while indx < 4:
+        try:
+            slowRateArray[indx] = str(slowRateEntryArray[indx].get())
+        except ValueError:
+            indx += 1
+            slowRateArray[indx] = "2"
+            continue
+        indx += 1
+    indx = 0
+    while indx < 4:
+        try:
+            fastRateArray[indx] = str(fastRateEntryArray[indx].get())
+        except ValueError:
+            indx += 1
+            fastRateArray[indx] = "8"
+            continue
+        indx += 1
+    execute()
+
+
+def exeDataFile():
+    config = configparser.ConfigParser()
+    config.read('data.ini')
+
+    try:
+        slowRateArray[0] = config['TOOL_1']['SlowRate']
+        slowRateArray[1] = config['TOOL_2']['SlowRate']
+        slowRateArray[2] = config['TOOL_3']['SlowRate']
+        slowRateArray[3] = config['TOOL_4']['SlowRate']
+        fastRateArray[0] = config['TOOL_1']['FastRate']
+        fastRateArray[1] = config['TOOL_2']['FastRate']
+        fastRateArray[2] = config['TOOL_3']['FastRate']
+        fastRateArray[3] = config['TOOL_4']['FastRate']
+    except ValueError:
+        print("something went wrong")
+    execute()
+
+
+slowRateEntryArray = ["", "", "", ""]
+fastRateEntryArray = ["", "", "", ""]
+slowRateEntryArray[0] = tk.Entry(master=root, width=10)
+slowRateEntryArray[0].grid(column=2, row=1)
+
+slowRateEntryArray[1] = tk.Entry(master=root, width=10)
+slowRateEntryArray[1].grid(column=2, row=2)
+
+slowRateEntryArray[2] = tk.Entry(master=root, width=10)
+slowRateEntryArray[2].grid(column=2, row=3)
+
+slowRateEntryArray[3] = tk.Entry(master=root, width=10)
+slowRateEntryArray[3].grid(column=2, row=4)
+
+fastRateEntryArray[0] = tk.Entry(master=root, width=10)
+fastRateEntryArray[0].grid(column=4, row=1)
+
+fastRateEntryArray[1] = tk.Entry(master=root, width=10)
+fastRateEntryArray[1].grid(column=4, row=2)
+
+fastRateEntryArray[2] = tk.Entry(master=root, width=10)
+fastRateEntryArray[2].grid(column=4, row=3)
+
+fastRateEntryArray[3] = tk.Entry(master=root, width=10)
+fastRateEntryArray[3].grid(column=4, row=4)
+
+
+grabMaxButton = tk.Button(root, text="Enter", width=10, command=grabMax)
+grabMaxButton.grid(row=9, column=0)
+
+grabMaxButton = tk.Button(root, text="Use Data File", width=10, command=exeDataFile)
+grabMaxButton.grid(row=9, column=3)
+
+tk.mainloop()
+# root.withdraw()
