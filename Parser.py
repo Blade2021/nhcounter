@@ -146,7 +146,6 @@ def grabMax():
             if saveVar == 1 and fastRateArray[indx] is not "":
                 try:
                     toolname = ("TOOL_" + (str(indx + 1)))
-                    print(toolname)
                     config.set(toolname, 'FastRate', fastRateArray[indx])
                 except:
                     print("Something went wrong")
