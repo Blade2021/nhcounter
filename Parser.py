@@ -8,6 +8,7 @@ from tkinter import messagebox
 
 slowRateArray = ['2', '2', '2', '2']
 fastRateArray = ['10', '10', '10', '10']
+global saveVar
 saveVar = 0
 root = tk.Tk()
 root.title("GCode File Parser - By Matt W.")
@@ -32,19 +33,15 @@ fastRate4.grid(row=4, column=3)
 
 def execute():
     root.withdraw()
-    x = 0
     y = 0
     rate = 0
     value = "Z-"
-
-    slowRateArray[0] = str('F' + slowRateArray[0])
-    slowRateArray[1] = str('F' + slowRateArray[1])
-    slowRateArray[2] = str('F' + slowRateArray[2])
-    slowRateArray[3] = str('F' + slowRateArray[3])
-    fastRateArray[0] = str('F' + fastRateArray[0])
-    fastRateArray[1] = str('F' + fastRateArray[1])
-    fastRateArray[2] = str('F' + fastRateArray[2])
-    fastRateArray[3] = str('F' + fastRateArray[3])
+    toolIndex = -1
+    indx = 0
+    while indx < 4:
+        slowRateArray[indx] = str('F' + slowRateArray[indx])
+        fastRateArray[indx] = str('F' + fastRateArray[indx])
+        indx += 1
 
     file_path = filedialog.askopenfilename()
     try:
@@ -77,9 +74,9 @@ def execute():
 
                 toolCheck = line.find('T')
                 if toolCheck >= 1:
-                    index += 1
-                    if index >= len(slowRateArray):
-                        index = 0
+                    toolIndex += 1
+                    if toolIndex >= len(slowRateArray):
+                        toolIndex = 0
 
                 # Search document line by line for Z negatives
                 if value in line:
@@ -92,12 +89,12 @@ def execute():
                         line = line[0:feedCheck]
                     line = line.rstrip('\n')
                     if rate >= 2:
-                        line += slowRateArray[index] + "\n"
+                        line += slowRateArray[toolIndex] + "\n"
                         rate = 1
                     else:
                         if rate == 0:
                             rate = 1
-                            line += slowRateArray[index]
+                            line += slowRateArray[toolIndex]
                         line += "\n"
                 if (file.filelineno() == y) and ("G01" in line):
                     feedCheck = line.find('F')
@@ -105,7 +102,7 @@ def execute():
                         line = line[0:feedCheck]
                     if rate == 1:
                         line = line.rstrip('\n')
-                        line += fastRateArray[index] + "\n"
+                        line += fastRateArray[toolIndex] + "\n"
                         rate = 2
                 sys.stdout.write(line)
 
@@ -119,22 +116,23 @@ def grabMax():
 
     # if saveVar != 1:
     saveVariable = tk.messagebox.askyesno("Data File", "Would you like to save the data?")
-    if saveVariable == 'yes':
+    if saveVariable is True:
         saveVar = 1
     else:
         saveVar = 0
 
 
     config = configparser.ConfigParser()
+    # dataFile = open('data.ini', 'r+')
     config.read('data.ini')
-    dataFile = open('data.ini', 'r+')
     while indx < 4:
         try:
             slowRateArray[indx] = str(slowRateEntryArray[indx].get())
-            if saveVar == 1:
+            if saveVar == 1 and slowRateArray[indx] is not "":
                 try:
-                    config.set('TOOL_' + (indx+1), 'SlowRate', slowRateArray[indx])
-                except:
+                    toolname = ("TOOL_" + (str(indx+1)))
+                    config[toolname]['SlowRate'] = slowRateArray[indx]
+                except ValueError:
                     print("Something went wrong")
         except ValueError:
             indx += 1
@@ -145,9 +143,11 @@ def grabMax():
     while indx < 4:
         try:
             fastRateArray[indx] = str(fastRateEntryArray[indx].get())
-            if saveVar == 1:
+            if saveVar == 1 and fastRateArray[indx] is not "":
                 try:
-                    config.set('TOOL_' + (indx+1), 'SlowRate', slowRateArray[indx])
+                    toolname = ("TOOL_" + (str(indx + 1)))
+                    print(toolname)
+                    config.set(toolname, 'FastRate', fastRateArray[indx])
                 except:
                     print("Something went wrong")
         except ValueError:
@@ -155,8 +155,11 @@ def grabMax():
             fastRateArray[indx] = '8'
             continue
         indx += 1
-    config.write(dataFile)
-    dataFile.close()
+
+    with open('data.ini', 'w') as configfile:
+        config.write(configfile)
+    #config.write(dataFile)
+    #dataFile.close()
     execute()
 
 
