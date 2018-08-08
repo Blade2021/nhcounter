@@ -28,29 +28,31 @@ fastRate3.grid(row=3, column=3)
 fastRate4 = tk.Label(root, text="Fast Rate 4", font='Times 12', width=12)
 fastRate4.grid(row=4, column=3)
 
-def execute():
+
+def execute(saveVar):
     root.withdraw()
     x = 0
     y = 0
     rate = 0
     value = "Z-"
     index = -1
-    saveVariable = tk.messagebox.askokcancel("Data File", "Would you like to save the data?")
-    if saveVariable is True:
-        # lets create that config file for next time...
-        config = configparser.ConfigParser()
-        config.read('data.ini')
-        dataFile = open("data.ini", 'r+')
-        config.set('TOOL_1', 'SlowRate', slowRateArray[0])
-        config.set('TOOL_2', 'SlowRate', slowRateArray[1])
-        config.set('TOOL_3', 'SlowRate', slowRateArray[2])
-        config.set('TOOL_4', 'SlowRate', slowRateArray[3])
-        config.set('TOOL_1', 'FastRate', fastRateArray[0])
-        config.set('TOOL_2', 'FastRate', fastRateArray[1])
-        config.set('TOOL_3', 'FastRate', fastRateArray[2])
-        config.set('TOOL_4', 'FastRate', fastRateArray[3])
-        config.write(dataFile)
-        dataFile.close()
+    if saveVar != 1:
+        saveVariable = tk.messagebox.askokcancel("Data File", "Would you like to save the data?")
+        if saveVariable is True:
+            # lets create that config file for next time...
+            config = configparser.ConfigParser()
+            config.read('data.ini')
+            dataFile = open("data.ini", 'r+')
+            config.set('TOOL_1', 'SlowRate', slowRateArray[0])
+            config.set('TOOL_2', 'SlowRate', slowRateArray[1])
+            config.set('TOOL_3', 'SlowRate', slowRateArray[2])
+            config.set('TOOL_4', 'SlowRate', slowRateArray[3])
+            config.set('TOOL_1', 'FastRate', fastRateArray[0])
+            config.set('TOOL_2', 'FastRate', fastRateArray[1])
+            config.set('TOOL_3', 'FastRate', fastRateArray[2])
+            config.set('TOOL_4', 'FastRate', fastRateArray[3])
+            config.write(dataFile)
+            dataFile.close()
 
     file_path = filedialog.askopenfilename()
 
@@ -134,7 +136,7 @@ def grabMax():
             slowRateArray[indx] = str(slowRateEntryArray[indx].get())
         except ValueError:
             indx += 1
-            slowRateArray[indx] = "2"
+            slowRateArray[indx] = '2'
             continue
         indx += 1
     indx = 0
@@ -143,10 +145,10 @@ def grabMax():
             fastRateArray[indx] = str(fastRateEntryArray[indx].get())
         except ValueError:
             indx += 1
-            fastRateArray[indx] = "8"
+            fastRateArray[indx] = '8'
             continue
         indx += 1
-    execute()
+    execute(0)
 
 
 def exeDataFile():
@@ -164,7 +166,7 @@ def exeDataFile():
         fastRateArray[3] = config['TOOL_4']['FastRate']
     except ValueError:
         print("something went wrong")
-    execute()
+    execute(1)
 
 
 slowRateEntryArray = ["", "", "", ""]
