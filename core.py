@@ -47,13 +47,19 @@ numbuttonarray = [0,1,3,4,5,6,7,8,9,0]
 x=1
 rowcomp=0
 colcomp=0
-while(x<10):
+while(x<11):
     if (x > 3) and (x <= 6):
         rowcomp=1
     if (x > 6):
         rowcomp=2
+    if x is 10:
+        x = 0
+        rowcomp = 3
+        colcomp = 1
     numbuttonarray[x] = tk.Button(root, text=x, width=3, height=1, font='Times 30', command=lambda c=x: numFunction(numbuttonarray[c].cget("text")))
     numbuttonarray[x].grid(row=(2+rowcomp), column=(4+colcomp))
+    if x is 0:
+        break
     colcomp+=1
     if(colcomp >= 3):
         colcomp=0
