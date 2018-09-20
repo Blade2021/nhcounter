@@ -21,6 +21,8 @@ currentcountlabel = tk.Label(root, text=("Current Count"), font='Times 20', bord
 currentcountlabel.grid(row=2, column=0)
 displaycountvariable = tk.Label(root, text=("0"), font='Times 20', borderwidth=3, width=12)
 displaycountvariable.grid(row=3, column=0)
+countvariable = tk.Label(root, text='Counter:', font='Times 20')
+countvariable.grid(row=1, column=0)
 # Grab tool amount from file
 def setcount():
     global countInterval
@@ -32,6 +34,7 @@ def setcount():
 def setInterval():
     global countVariable
     countVariable = int(countstring)
+    countvariable.config(text=('Counter: ' + countstring))
     clear()
 
 def countreset():
