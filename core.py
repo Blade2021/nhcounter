@@ -1,13 +1,10 @@
-import sys
-import configparser
-
 import tkinter as tk
-from tkinter import filedialog
-from tkinter import messagebox
+#import RPi.GPIO
+
 
 # Initialise arrays for parsing
 # Array sizes will be increased as needed
-countVariable = 0
+countVariable = 100
 countInterval = 0
 countstring=""
 
@@ -22,10 +19,25 @@ changecountvariable = tk.Label(root, text=(countstring), font='Times 20')
 changecountvariable.grid(row=1,column=6,columnspan=2, pady=13)
 currentcountlabel = tk.Label(root, text=("Current Count"), font='Times 20', borderwidth=3, width=12)
 currentcountlabel.grid(row=2, column=0)
-distplaycountvariable = tk.Label(root, text=("89"), font='Times 20', borderwidth=3, width=12)
-distplaycountvariable.grid(row=3, column=0)
+displaycountvariable = tk.Label(root, text=("0"), font='Times 20', borderwidth=3, width=12)
+displaycountvariable.grid(row=3, column=0)
 # Grab tool amount from file
+def setcount():
+    global countInterval
+    countInterval +=1
+    if countInterval > countVariable:
+        countreset()
+    displaycountvariable.config(text=countInterval)
 
+def setInterval():
+    global countVariable
+    countVariable = int(countstring)
+    clear()
+
+def countreset():
+    displaycountvariable.config(text="0")
+    global countInterval
+    countInterval = 0
 
 def numFunction(id):
     print("You pressed: " + str(id))
@@ -38,11 +50,24 @@ def clear():
     countstring = ""
     changecountvariable.config(text="")
 
-enterbutton = tk.Button(root, text='Enter', width=6, font='Times 26')
+def run():
+    global countVariable
+    countVariable = 0
+    #RPi.GPIO
+
+
+enterbutton = tk.Button(root, text='Enter', width=6, font='Times 26', command=setInterval)
 enterbutton.grid(row=5,column=6)
 
 clearbutton = tk.Button(root, text='Clear', width=6, font='Times 26', command=clear)
 clearbutton.grid(row=5,column=4)
+
+runbutton = tk.Button(root, text='Run', width=6, font='Times 26', command=setcount)
+runbutton.grid(row=4,column=0)
+
+resetbutton = tk.Button(root, text='Reset', width=6, font='Times 26', command=countreset)
+resetbutton.grid(row=5 ,column=0)
+
 numbuttonarray = [0,1,3,4,5,6,7,8,9,0]
 x=1
 rowcomp=0
