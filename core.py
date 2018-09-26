@@ -58,7 +58,9 @@ def clear():
 def run():
     global countVariable
     countVariable = 0
-    ser.write("Test")
+    string1 = "TEST"
+    string1_encode = string1.encode()
+    ser.write(string1_encode)
 
 
 enterbutton = tk.Button(root, text='Enter', width=6, font='Times 26', command=setInterval)
