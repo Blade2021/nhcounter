@@ -26,10 +26,6 @@ displaycountvariable.grid(row=3, column=0)
 countvariable = tk.Label(root, text='Counter:', font='Times 20')
 countvariable.grid(row=1, column=0)
 
-if(ser.inWaiting()>0):
-        myData = ser.readline()
-        print (myData)
-
 
 def setcount():
     global countInterval
@@ -42,6 +38,7 @@ def setInterval():
     global countVariable
     countVariable = int(countstring)
     countvariable.config(text=('Counter: ' + countstring))
+    ser.write(("VARCHANGE." + countstring + '\n').encode())
     clear()
 
 def countreset():
@@ -63,10 +60,8 @@ def clear():
 def run():
     global countVariable
     countVariable = 0
-    string1 = 'TEST'
-    string1_encode = string1.encode()
-    print(string1_encode)
-    #ser.write(string1_encode)
+    string1 = 'RUN.1'
+    ser.write((string1 + '\n').encode())
 
 
 enterbutton = tk.Button(root, text='Enter', width=6, font='Times 26', command=setInterval)
