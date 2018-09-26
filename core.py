@@ -67,7 +67,7 @@ enterbutton.grid(row=5,column=6)
 clearbutton = tk.Button(root, text='Clear', width=6, font='Times 26', command=clear)
 clearbutton.grid(row=5,column=4)
 
-runbutton = tk.Button(root, text='Run', width=10, font='Times 26', command=setcount)
+runbutton = tk.Button(root, text='Run', width=10, font='Times 26', command=run)
 runbutton.grid(row=4,column=0)
 
 resetbutton = tk.Button(root, text='Reset', width=10, font='Times 26', command=countreset)
