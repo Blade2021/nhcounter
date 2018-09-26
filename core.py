@@ -1,7 +1,7 @@
 import tkinter as tk
 import serial
 
-ser = serial.Serial('/dev/ttyUSB0', 19200)
+#ser = serial.Serial('/dev/ttyUSB0', 19200)
 
 
 # Initialise arrays for parsing
@@ -58,9 +58,10 @@ def clear():
 def run():
     global countVariable
     countVariable = 0
-    string1 = "TEST"
+    string1 = 'TEST'
     string1_encode = string1.encode()
-    ser.write(string1_encode)
+    print(string1_encode)
+    #ser.write(string1_encode)
 
 
 enterbutton = tk.Button(root, text='Enter', width=6, font='Times 26', command=setInterval)
