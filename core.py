@@ -1,7 +1,7 @@
 import tkinter as tk
 import serial
 
-#ser = serial.Serial('/dev/ttyUSB0', 19200)
+ser = serial.Serial('/dev/ttyUSB0', 19200)
 
 
 # Initialise arrays for parsing
@@ -25,6 +25,11 @@ displaycountvariable = tk.Label(root, text=("0"), font='Times 20', borderwidth=3
 displaycountvariable.grid(row=3, column=0)
 countvariable = tk.Label(root, text='Counter:', font='Times 20')
 countvariable.grid(row=1, column=0)
+
+if(ser.inWaiting()>0):
+        myData = ser.readline()
+        print (myData)
+
 
 def setcount():
     global countInterval
