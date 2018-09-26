@@ -25,19 +25,6 @@ displaycountvariable = tk.Label(root, text=("0"), font='Times 20', borderwidth=3
 displaycountvariable.grid(row=3, column=0)
 countvariable = tk.Label(root, text='Counter:', font='Times 20')
 countvariable.grid(row=1, column=0)
-# Grab tool amount from file
-def startCounter():
-    #set flag to low
-    #set pin to input
-    #reset count
-
-def partCounter():
-    #set flag to low
-    #set pin to input
-    #read out count+1
-
-def counterStop():
-    #set relay to LOW
 
 def setcount():
     global countInterval
