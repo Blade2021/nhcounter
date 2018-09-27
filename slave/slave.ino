@@ -44,15 +44,12 @@ void setup()
         pinMode(outArray[k], OUTPUT);
         delay(1);
     }
-    // Prepare Input pins
-    pinMode(inArray[0], INPUT_PULLUP);
-    /*
+    // Prepare Input pins    
     for (byte k; k < INARRAYSIZE; k++)
     {
         pinMode(inArray[k], INPUT_PULLUP);
         delay(1);
     }
-    */
     for (byte k = 0; k < DATASIZE; k++)
     {
         dataArray[k] = EEPROM.read(40 + k);
@@ -63,6 +60,11 @@ void setup()
     }
     pinMode(ledpin, OUTPUT);
     digitalWrite(outArray[0], HIGH);
+
+    byte cVarTemp1 = EEPROM.read(21);
+    byte cVarTemp2 = EEPROM.read(22);
+    
+    cVar = cVarTemp1 + cVarTemp2;
 }
 
 void loop()
@@ -144,7 +146,23 @@ void checkData()
                 cVar = value;
                 lcd.setCursor(0,2);
                 lcd.print(cVar);
+                if (value > 500)
+                {
+                    return;
+                }
+                if ((value > 250) && (value <= 500))
+                {
+                    byte tempValue = value - 250;
+                    EEPROM.update(21, tempValue);
+                    EEPROM.update(22, 250)
+                }
+                if ((value >= 0) && (value <= 250))
+                {
+                    EEPROM.update(21, value);
+                    EEPROM.update(22, 0);
+                }
             }
+
             if (apple.substring(0, 3) == "RUN")
             {
                 byte value = lastValue();
@@ -154,8 +172,9 @@ void checkData()
                 {
                 case 0:
                     run = 0;
-                    lcd.setCursor(0,2);
-                    lcd.print("Cycle Paused");
+                    lcd.clear();
+                    lcd.setCursor(0,0);
+                    lcd.print("Cycle Stopped");
                     digitalWrite(ledpin, LOW);
                     digitalWrite(outArray[0], HIGH);
                     break;
@@ -166,7 +185,10 @@ void checkData()
                     run = 2;
                     lcd.clear();
                     lcd.setCursor(0,0);
-                    lcd.print("Running");
+                    lcd.print("Cycle Running");
+                    lcd.setCursor(0,2);
+                    lcd.print("VAR:");
+                    lcd.print(cVar);
                     digitalWrite(outArray[0], LOW);
                     digitalWrite(ledpin, HIGH);
                     lastRead = millis();
@@ -176,6 +198,7 @@ void checkData()
                     break;
                 }
             }
+            // Simple test command
             if (apple.substring(0, 4) == "TEST")
             {
                 ledStatus = !ledStatus;
@@ -184,7 +207,19 @@ void checkData()
             if (apple.substring(0, 10) == "DATACHANGE")
             {
                 byte address = firstValue();
+                // Protect against writing outside of EEPROM memory
+                if ((address < 0) || (address >= EEEPROM.length()))
+                {
+                    reportFunction(1);
+                    return;
+                }
+                // Value must remain within limits
                 int value = lastValue();
+                if (value >= 255)
+                {
+                    reportFunction(0);
+                    return;
+                }
                 dataArray[address] = value;
                 EEPROM.update(address+40,value);
                 Serial.print("Updated ArrayLoc[");
@@ -244,4 +279,7 @@ void reportFunction(byte code)
         Serial.println("Unexpected input recieved");
         break;
     }
+    case 1:
+        Serial.println("EEPROM Address not found");
+        break;
 }
