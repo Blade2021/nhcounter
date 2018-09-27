@@ -2,8 +2,13 @@ import tkinter as tk
 import serial
 import threading
 
-ser = serial.Serial('COM8', 19200, 8, 'N', 1, timeout=5)
+class dataStorage():
+    pauseStatus = 0
+    orig_color = "ivory2"
 
+
+#ser = serial.Serial('/dev/ttyUSB0', 19200, 8, 'N', 1, timeout=5)
+ser = serial.Serial('COM8', 19200, 8, 'N', 1, timeout=5)
 
 # Initialise arrays for parsing
 # Array sizes will be increased as needed
@@ -13,10 +18,10 @@ countstring=""
 
 # Main Window
 root = tk.Tk()
-root.title("Pad Print Counter - By Matt W.")
+root.title("National Hanger - Pad Print Counter")
 root.resizable(width=False, height=False)  # Disable resizing
 
-changecountlabel = tk.Label(root, text=("Count Change"), font='Times 20')
+changecountlabel = tk.Label(root, text=("Input:"), anchor='e',justify='right', font='Times 20')
 changecountlabel.grid(row=1,column=3,columnspan=3, pady=13)
 changecountvariable = tk.Label(root, text=(countstring), font='Times 20', width=7, bd=1, relief='groove')
 changecountvariable.grid(row=1,column=6,columnspan=2, pady=13)
@@ -27,6 +32,24 @@ displaycountvariable.grid(row=3, column=0)
 countvariable = tk.Label(root, text='Counter:', font='Times 20')
 countvariable.grid(row=1, column=0)
 
+def pausecommand():
+    if (dataStorage.pauseStatus == 0):
+        string1 = "RUN.0"
+        pausefunction(1)
+    else:
+        string1 = "RUN.2"
+        dataStorage.pauseStatus = 0
+        pausefunction(0)
+    ser.write((string1 + '\n').encode())
+
+
+def pausefunction(pstatus):
+    if(pstatus == 1):
+        dataStorage.pauseStatus = 1
+        dataStorage.orig_color = pausebutton.cget("background")
+        pausebutton.config(bg='yellow')
+    else:
+        pausebutton.config(bg=dataStorage.orig_color)
 
 def setcount():
     global countInterval
@@ -43,12 +66,13 @@ def setInterval():
     clear()
 
 def countreset():
-    displaycountvariable.config(text="0")
-    global countInterval
-    countInterval = 0
+    #displaycountvariable.config(text="0")
+    #global countInterval
+    #countInterval = 0
+    dataStorage.pauseStatus = 0
     ser.write(("RUN.0\n").encode())
-    displaycountvariable.config(text="RESET")
-    displaycountvariable.config(bg='red')
+    displaycountvariable.config(bg='OrangeRed2')
+    pausefunction(0)
 
 def numFunction(id):
     print("You pressed: " + str(id))
@@ -64,8 +88,12 @@ def clear():
 def run():
     global countVariable
     countVariable = 0
+    pausefunction(0)
     string1 = 'RUN.1'
     ser.write((string1 + '\n').encode())
+    displaycountvariable.config(text='0')
+    displaycountvariable.config(bg='yellow')
+
 
 
 def handle_data(data):
@@ -76,7 +104,7 @@ def handle_data(data):
         displaycountvariable.config(text=in_count)
         displaycountvariable.config(bg='yellow')
     if "COMPLETE" in data:
-        displaycountvariable.config(bg='green')
+        displaycountvariable.config(bg='green yellow')
     print(data)
 
 
@@ -85,6 +113,7 @@ def read_from_port():
             if ser.in_waiting > 0:
                 reading = ser.readline().decode()
                 handle_data(reading)
+
 
 
 thread = threading.Thread(target=read_from_port)
@@ -102,6 +131,9 @@ runbutton.grid(row=4,column=0)
 
 resetbutton = tk.Button(root, text='Stop', width=10, font='Times 26', command=countreset)
 resetbutton.grid(row=5 ,column=0)
+
+pausebutton = tk.Button(root, text='Pause', width=10, font='Times 26', command=pausecommand)
+pausebutton.grid(row=6 ,column=0)
 
 numbuttonarray = [0,1,3,4,5,6,7,8,9,0]
 x=1

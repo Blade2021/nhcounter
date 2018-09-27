@@ -62,6 +62,7 @@ void setup()
         Serial.println(dataArray[k]);
     }
     pinMode(ledpin, OUTPUT);
+    digitalWrite(outArray[0], HIGH);
 }
 
 void loop()
@@ -74,8 +75,8 @@ void loop()
     {
         checkData();
     }
-
-    if ((run == 1) && (errorLevel == 0))
+    
+    if ((run == 2) && (errorLevel == 0))
     {
         byte senCheck = digitalRead(inArray[0]);
         if ((senCheck == LOW) && (millis() - lastRead >= dataArray[0]))
@@ -91,6 +92,8 @@ void loop()
         if (countInterval >= cVar)
         {
             Serial.println("COMPLETE");
+            digitalWrite(outArray[0], HIGH);
+            digitalWrite(ledpin, LOW);
             countInterval = 0;
             run = 0;
         }
@@ -145,19 +148,28 @@ void checkData()
             if (apple.substring(0, 3) == "RUN")
             {
                 byte value = lastValue();
+                static byte pause = 0;
                 run = value;
                 switch (value)
                 {
                 case 0:
                     run = 0;
+                    lcd.setCursor(0,2);
+                    lcd.print("Cycle Paused");
                     digitalWrite(ledpin, LOW);
+                    digitalWrite(outArray[0], HIGH);
                     break;
                 case 1:
-                    run = 1;
-                    digitalWrite(outArray[0], HIGH);
+                    countInterval = 0;
+                    // Intentional no break!
+                case 2:
+                    run = 2;
+                    lcd.clear();
+                    lcd.setCursor(0,0);
+                    lcd.print("Running");
+                    digitalWrite(outArray[0], LOW);
                     digitalWrite(ledpin, HIGH);
                     lastRead = millis();
-                    countInterval = 0;
                     break;
                 default:
                     reportFunction(0);
