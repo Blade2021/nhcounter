@@ -1,4 +1,7 @@
 #include <EEPROM.h>
+#include <Adafruit_LiquidCrystal.h>
+#include <Wire.h>
+
 
 #define SENSORPIN 10
 #define RELAYPIN 12
@@ -9,10 +12,12 @@
 
 const byte inArray[INARRAYSIZE + 1] = {10, 11};
 const byte outArray[OUTARRAYSIZE + 1] = {7, 8};
+const byte ledpin = 13;
 
 int dataArray[DATASIZE + 1] = {200, 200, 200};
 byte step = 0;
 byte run = 0;
+byte ledStatus = 0;
 
 // Time control
 unsigned long lastRead = 0;
@@ -46,6 +51,7 @@ void setup()
     {
         dataArray[k] = EEPROM.read(40 + k)
     }
+    pinMode(ledpin, OUTPUT);
     Serial.begin(DATASPEED);
 }
 
@@ -136,6 +142,11 @@ void checkData()
                     reportFunction(0);
                     break;
                 }
+            }
+            if (apple.substring(0, 4) == "TEST")
+            {
+                ledStatus = !ledStatus;
+                digitalWrite(ledpin, ledStatus)
             }
             if (apple.substring(0, 3) == "DATACHANGE")
             {
