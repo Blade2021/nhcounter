@@ -62,6 +62,16 @@ def run():
     countVariable = 0
     string1 = 'RUN.1'
     ser.write((string1 + '\n').encode())
+    wait = 1
+    while(wait==1):
+        if(ser.inWaiting()>0):
+            myData = ser.readLine()
+            myData = myData.decode()
+            if(myData == 'COMPLETE'):
+                ser.write(("RUN.0\n").encode())
+                wait = 0
+            else:
+                print(myData)
 
 
 enterbutton = tk.Button(root, text='Enter', width=6, font='Times 26', command=setInterval)
