@@ -1,5 +1,7 @@
 import tkinter as tk
-#import RPi.GPIO
+import serial
+
+ser = serial.Serial('/dev/ttyUSB0', 19200)
 
 
 # Initialise arrays for parsing
@@ -13,21 +15,22 @@ root = tk.Tk()
 root.title("Pad Print Counter - By Matt W.")
 root.resizable(width=False, height=False)  # Disable resizing
 
-changecountlabel = tk.Label(root, text=("Count Variable"), font='Times 20')
+changecountlabel = tk.Label(root, text=("Count Change"), font='Times 20')
 changecountlabel.grid(row=1,column=3,columnspan=3, pady=13)
-changecountvariable = tk.Label(root, text=(countstring), font='Times 20')
+changecountvariable = tk.Label(root, text=(countstring), font='Times 20', width=7, bd=1, relief='groove')
 changecountvariable.grid(row=1,column=6,columnspan=2, pady=13)
 currentcountlabel = tk.Label(root, text=("Current Count"), font='Times 20', borderwidth=3, width=12)
 currentcountlabel.grid(row=2, column=0)
-displaycountvariable = tk.Label(root, text=("0"), font='Times 20', borderwidth=3, width=12)
+displaycountvariable = tk.Label(root, text=("0"), font='Times 20', borderwidth=3, width=12, bd=1, relief='groove', anchor='s')
 displaycountvariable.grid(row=3, column=0)
 countvariable = tk.Label(root, text='Counter:', font='Times 20')
 countvariable.grid(row=1, column=0)
-# Grab tool amount from file
+
+
 def setcount():
     global countInterval
     countInterval +=1
-    if countInterval > countVariable:
+    if countInterval >= countVariable:
         countreset()
     displaycountvariable.config(text=countInterval)
 
@@ -35,6 +38,7 @@ def setInterval():
     global countVariable
     countVariable = int(countstring)
     countvariable.config(text=('Counter: ' + countstring))
+    ser.write(("VARCHANGE." + countstring + '\n').encode())
     clear()
 
 def countreset():
@@ -56,7 +60,18 @@ def clear():
 def run():
     global countVariable
     countVariable = 0
-    #RPi.GPIO
+    string1 = 'RUN.1'
+    ser.write((string1 + '\n').encode())
+    wait = 1
+    while(wait==1):
+        if(ser.inWaiting()>0):
+            myData = ser.readLine()
+            myData = myData.decode()
+            if(myData == 'COMPLETE'):
+                ser.write(("RUN.0\n").encode())
+                wait = 0
+            else:
+                print(myData)
 
 
 enterbutton = tk.Button(root, text='Enter', width=6, font='Times 26', command=setInterval)
@@ -65,10 +80,10 @@ enterbutton.grid(row=5,column=6)
 clearbutton = tk.Button(root, text='Clear', width=6, font='Times 26', command=clear)
 clearbutton.grid(row=5,column=4)
 
-runbutton = tk.Button(root, text='Run', width=6, font='Times 26', command=setcount)
+runbutton = tk.Button(root, text='Run', width=10, font='Times 26', command=run)
 runbutton.grid(row=4,column=0)
 
-resetbutton = tk.Button(root, text='Reset', width=6, font='Times 26', command=countreset)
+resetbutton = tk.Button(root, text='Reset', width=10, font='Times 26', command=countreset)
 resetbutton.grid(row=5 ,column=0)
 
 numbuttonarray = [0,1,3,4,5,6,7,8,9,0]
