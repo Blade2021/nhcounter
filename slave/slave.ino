@@ -65,6 +65,8 @@ void setup()
     byte cVarTemp2 = EEPROM.read(22);
     
     cVar = cVarTemp1 + cVarTemp2;
+    Serial.print("CVAR:");
+    Serial.println(cVar);
 }
 
 void loop()

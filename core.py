@@ -105,6 +105,9 @@ def handle_data(data):
         displaycountvariable.config(bg='yellow')
     if "COMPLETE" in data:
         displaycountvariable.config(bg='green yellow')
+    if 'CVAR' in data:
+        countstring = data[5:]
+        countvariable.config(text="Counter: " + countstring)
     print(data)
 
 
