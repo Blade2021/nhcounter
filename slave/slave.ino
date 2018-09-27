@@ -146,15 +146,11 @@ void checkData()
                 cVar = value;
                 lcd.setCursor(0,2);
                 lcd.print(cVar);
-                if (value > 500)
-                {
-                    return;
-                }
                 if ((value > 250) && (value <= 500))
                 {
                     byte tempValue = value - 250;
                     EEPROM.update(21, tempValue);
-                    EEPROM.update(22, 250)
+                    EEPROM.update(22, 250);
                 }
                 if ((value >= 0) && (value <= 250))
                 {
@@ -208,7 +204,7 @@ void checkData()
             {
                 byte address = firstValue();
                 // Protect against writing outside of EEPROM memory
-                if ((address < 0) || (address >= EEEPROM.length()))
+                if ((address < 0) || (address >= EEPROM.length()))
                 {
                     reportFunction(1);
                     return;
@@ -278,8 +274,8 @@ void reportFunction(byte code)
     case 0:
         Serial.println("Unexpected input recieved");
         break;
-    }
     case 1:
         Serial.println("EEPROM Address not found");
         break;
+    }
 }
