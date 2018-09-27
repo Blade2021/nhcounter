@@ -1,7 +1,8 @@
 import tkinter as tk
 import serial
+import threading
 
-ser = serial.Serial('/dev/ttyUSB0', 19200)
+ser = serial.Serial('COM8', 19200, 8, 'N', 1, timeout=5)
 
 
 # Initialise arrays for parsing
@@ -45,6 +46,9 @@ def countreset():
     displaycountvariable.config(text="0")
     global countInterval
     countInterval = 0
+    ser.write(("RUN.0\n").encode())
+    displaycountvariable.config(text="RESET")
+    displaycountvariable.config(bg='red')
 
 def numFunction(id):
     print("You pressed: " + str(id))
@@ -62,16 +66,29 @@ def run():
     countVariable = 0
     string1 = 'RUN.1'
     ser.write((string1 + '\n').encode())
-    wait = 1
-    while(wait==1):
-        if(ser.inWaiting()>0):
-            myData = ser.readLine()
-            myData = myData.decode()
-            if(myData == 'COMPLETE'):
-                ser.write(("RUN.0\n").encode())
-                wait = 0
-            else:
-                print(myData)
+
+
+def handle_data(data):
+    data = data.rstrip('\n')
+    if 'S:' in data:
+        # data = data.rstrip('\n')
+        in_count = data[2:]
+        displaycountvariable.config(text=in_count)
+        displaycountvariable.config(bg='yellow')
+    if "COMPLETE" in data:
+        displaycountvariable.config(bg='green')
+    print(data)
+
+
+def read_from_port():
+        while True:
+            if ser.in_waiting > 0:
+                reading = ser.readline().decode()
+                handle_data(reading)
+
+
+thread = threading.Thread(target=read_from_port)
+thread.start()
 
 
 enterbutton = tk.Button(root, text='Enter', width=6, font='Times 26', command=setInterval)
@@ -83,7 +100,7 @@ clearbutton.grid(row=5,column=4)
 runbutton = tk.Button(root, text='Run', width=10, font='Times 26', command=run)
 runbutton.grid(row=4,column=0)
 
-resetbutton = tk.Button(root, text='Reset', width=10, font='Times 26', command=countreset)
+resetbutton = tk.Button(root, text='Stop', width=10, font='Times 26', command=countreset)
 resetbutton.grid(row=5 ,column=0)
 
 numbuttonarray = [0,1,3,4,5,6,7,8,9,0]

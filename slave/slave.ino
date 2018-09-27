@@ -31,31 +31,37 @@ String apple = "";
 byte initial = 1;
 byte errorLevel = 0;
 
-unsigned int cVar = 0;          //Variable counting to
+unsigned int cVar = 100;          //Variable counting to
 unsigned int countInterval = 0; //Current count
 
 void setup()
 {
+    Serial.begin(DATASPEED);
     lcd.begin(20, 4);
     // Prepare Output pins
-    for (byte k; k < OUTARRAYSIZE; k++)
+    for (byte k = 0; k < OUTARRAYSIZE; k++)
     {
         pinMode(outArray[k], OUTPUT);
         delay(1);
     }
     // Prepare Input pins
+    pinMode(inArray[0], INPUT_PULLUP);
+    /*
     for (byte k; k < INARRAYSIZE; k++)
     {
         pinMode(inArray[k], INPUT_PULLUP);
         delay(1);
     }
-
-    for (byte k; k < DATASIZE; k++)
+    */
+    for (byte k = 0; k < DATASIZE; k++)
     {
         dataArray[k] = EEPROM.read(40 + k);
+        Serial.print("ArrayLOC[");
+        Serial.print(k);
+        Serial.print("] Value: ");
+        Serial.println(dataArray[k]);
     }
     pinMode(ledpin, OUTPUT);
-    Serial.begin(DATASPEED);
 }
 
 void loop()
@@ -72,13 +78,15 @@ void loop()
     if ((run == 1) && (errorLevel == 0))
     {
         byte senCheck = digitalRead(inArray[0]);
-        if ((senCheck >= 1) && (millis() - lastRead >= dataArray[0]))
+        if ((senCheck == LOW) && (millis() - lastRead >= dataArray[0]))
         {
             countInterval++;
             lcd.setCursor(0,1);
             lcd.print("C:");
             lcd.print(countInterval);
             lastRead = millis();
+            Serial.print("S:");
+            Serial.println(countInterval);
         }
         if (countInterval >= cVar)
         {
@@ -127,10 +135,12 @@ void checkData()
     {
         if (apple.length() >= 3)
         {
-            if (apple.substring(0, 8) == "VARCHANGE")
+            if (apple.substring(0, 9) == "VARCHANGE")
             {
                 unsigned int value = lastValue();
                 cVar = value;
+                lcd.setCursor(0,2);
+                lcd.print(cVar);
             }
             if (apple.substring(0, 3) == "RUN")
             {
@@ -159,12 +169,16 @@ void checkData()
                 ledStatus = !ledStatus;
                 digitalWrite(ledpin, ledStatus);
             }
-            if (apple.substring(0, 3) == "DATACHANGE")
+            if (apple.substring(0, 10) == "DATACHANGE")
             {
                 byte address = firstValue();
                 int value = lastValue();
                 dataArray[address] = value;
                 EEPROM.update(address+40,value);
+                Serial.print("Updated ArrayLoc[");
+                Serial.print(address);
+                Serial.print("] Value: ");
+                Serial.println(value);
             }
         }
         newData = false;
