@@ -1,6 +1,9 @@
+# !/usr/bin/python3
+
 import tkinter as tk
 import serial
 import threading
+import os
 
 class dataStorage():
     pauseStatus = 0
@@ -80,6 +83,9 @@ def numFunction(id):
     countstring += str(id)
     changecountvariable.config(text=countstring)
 
+def shutdown():
+    os.system("sudo shutdown -h now")
+
 def clear():
     global countstring
     countstring = ""
@@ -131,6 +137,9 @@ clearbutton.grid(row=5,column=4)
 
 runbutton = tk.Button(root, text='Run', width=10, font='Times 26', command=run)
 runbutton.grid(row=4,column=0)
+
+shutdownbutton = tk.Button(root, text='Run', width=10, font='Times 26', command=shutdown)
+shutdownbutton.grid(row=6,column=3)
 
 resetbutton = tk.Button(root, text='Stop', width=10, font='Times 26', command=countreset)
 resetbutton.grid(row=5 ,column=0)
