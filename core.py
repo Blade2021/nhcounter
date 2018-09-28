@@ -10,8 +10,8 @@ class dataStorage():
     orig_color = "ivory2"
 
 
-#ser = serial.Serial('/dev/ttyUSB0', 19200, 8, 'N', 1, timeout=5)
-ser = serial.Serial('COM8', 19200, 8, 'N', 1, timeout=5)
+ser = serial.Serial('/dev/ttyUSB0', 19200, 8, 'N', 1, timeout=5)
+#ser = serial.Serial('COM8', 19200, 8, 'N', 1, timeout=5)
 
 # Initialise arrays for parsing
 # Array sizes will be increased as needed
@@ -22,7 +22,8 @@ countstring=""
 # Main Window
 root = tk.Tk()
 root.title("National Hanger - Pad Print Counter")
-root.resizable(width=False, height=False)  # Disable resizing
+#root.resizable(width=False, height=False)  # Disable resizing
+root.attributes("-fullscreen", True)
 
 changecountlabel = tk.Label(root, text=("Input:"), anchor='e',justify='right', font='Times 20')
 changecountlabel.grid(row=1,column=3,columnspan=3, pady=13)
@@ -138,7 +139,7 @@ clearbutton.grid(row=5,column=4)
 runbutton = tk.Button(root, text='Run', width=10, font='Times 26', command=run)
 runbutton.grid(row=4,column=0)
 
-shutdownbutton = tk.Button(root, text='Run', width=10, font='Times 26', command=shutdown)
+shutdownbutton = tk.Button(root, text='Shutdown', width=10, font='Times 26', command=shutdown)
 shutdownbutton.grid(row=6,column=3)
 
 resetbutton = tk.Button(root, text='Stop', width=10, font='Times 26', command=countreset)
